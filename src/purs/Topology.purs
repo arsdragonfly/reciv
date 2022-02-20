@@ -2,13 +2,13 @@ module Topology where
 
 import Prelude
 
-import Data.Bifunctor (bimap)
-import Data.Maybe (Maybe)
+import Data.Array (catMaybes, (..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Monoid.Additive (Additive(..), Additive)
-import Data.Newtype (class Newtype, ala)
+import Data.Newtype (class Newtype, unwrap)
 import Data.Tuple (Tuple(..), Tuple)
-import Data.Typelevel.Num (D2)
-import Data.Vec (Vec(..), Vec, empty, (+>))
+import Data.Typelevel.Num (D2, d0, d1)
+import Data.Vec (Vec(..), Vec, (!!), empty, (+>))
 
 class (Semigroup i) <= NaiveTopology i where
   neighbors :: Array i
@@ -16,9 +16,19 @@ class (Semigroup i) <= NaiveTopology i where
 class (NaiveTopology i) <= CardinalNaiveTopology i where
   cardinalNeighbors :: Array i
 
-class (Semigroup i) <= NormalizableIndex i j where
-  normalize :: i -> Maybe j
-  project :: j -> i
+class (Semigroup i) <= FiniteTopology context i where
+  normalize :: context -> i -> Maybe i
+  allPositions :: context -> Array i
+
+normalizedNeighbors :: forall context i. NaiveTopology i => FiniteTopology context i => context -> i -> Array i
+normalizedNeighbors ctx i = catMaybes $ do
+  n <- neighbors
+  pure (normalize ctx (i <> n))
+
+normalizedCardinalNeighbors :: forall context i. CardinalNaiveTopology i => FiniteTopology context i => context -> i -> Array i
+normalizedCardinalNeighbors ctx i = catMaybes $ do
+  n <- cardinalNeighbors
+  pure (normalize ctx (i <> n))
 
 type Vec2 = Vec D2 (Additive Int)
 
@@ -90,3 +100,20 @@ instance hexCardinalNaiveTopology :: CardinalNaiveTopology HexPoint where
     0 +> (-1) +> empty,
     1 +> (-1) +> empty
   ]))
+
+newtype NowrapSquareGridContext = NowrapSquareGridContext ({
+  xlen :: Int,
+  ylen :: Int
+})
+
+instance nowrapSquareTopology :: FiniteTopology NowrapSquareGridContext SquarePoint where
+  normalize (NowrapSquareGridContext c) (SquarePoint pos) = let
+                                        x = unwrap (pos !! d0)
+                                        y = unwrap (pos !! d1)
+                                     in if x < 0 || x >= c.xlen || y < 0 || y >= c.ylen
+                                        then Nothing
+                                        else Just (SquarePoint ((Additive x) +> (Additive y) +> empty))
+  allPositions (NowrapSquareGridContext c) = do
+    x <- 0..(c.xlen - 1)
+    y <- 0..(c.ylen - 1)
+    pure (SquarePoint ((Additive x) +> (Additive y) +> empty))
