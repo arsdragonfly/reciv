@@ -6,11 +6,14 @@ import './App.css';
 import { Canvas } from '@react-three/fiber'
 import { Box } from './Box';
 
+// polyfill for testing purposes
+import { ResizeObserver } from '@juggle/resize-observer'
+
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Canvas>
+        <Canvas resize={{ polyfill: ResizeObserver }}>
           <ambientLight />
           <pointLight position={[10, 10, 10]} />
           <Box position={[-1.2, 0, 0]} />

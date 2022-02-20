@@ -6,8 +6,11 @@ module.exports = {
             options: {
                 spago: true,
                 watch: true,
-                pscIde: false,
+                pscIde: true,
             },
         },
     ],
+    babel: {
+        presets: ['@babel/preset-react']
+    }
 }
