@@ -8,7 +8,7 @@ import Data.Monoid.Additive (Additive(..), Additive)
 import Data.Newtype (class Newtype, unwrap)
 import Data.Tuple (Tuple(..), Tuple)
 import Data.Typelevel.Num (D2, d0, d1)
-import Data.Vec (Vec(..), Vec, (!!), empty, (+>))
+import Data.Vec (Vec(..), Vec, (!!), empty, vec2)
 
 class (Semigroup i) <= NaiveTopology i where
   neighbors :: Array i
@@ -21,14 +21,14 @@ class (Semigroup i) <= FiniteTopology context i where
   allPositions :: context -> Array i
 
 normalizedNeighbors :: forall context i. NaiveTopology i => FiniteTopology context i => context -> i -> Array i
-normalizedNeighbors ctx i = catMaybes $ do
+normalizedNeighbors ctx i = (do
   n <- neighbors
-  pure (normalize ctx (i <> n))
+  pure (normalize ctx (i <> n))) # catMaybes
 
 normalizedCardinalNeighbors :: forall context i. CardinalNaiveTopology i => FiniteTopology context i => context -> i -> Array i
-normalizedCardinalNeighbors ctx i = catMaybes $ do
+normalizedCardinalNeighbors ctx i = (do
   n <- cardinalNeighbors
-  pure (normalize ctx (i <> n))
+  pure (normalize ctx (i <> n))) # catMaybes
 
 type Vec2 = Vec D2 (Additive Int)
 
@@ -43,62 +43,62 @@ derive newtype instance semigroupHexPoint :: Semigroup HexPoint
 
 instance squareNaiveTopology :: NaiveTopology SquarePoint where
   neighbors = map SquarePoint (map (map Additive) ([
-    1 +> 0 +> empty,
-    1 +> 1 +> empty,
-    0 +> 1 +> empty,
-    (-1) +> 1 +> empty,
-    (-1) +> 0 +> empty,
-    (-1) +> (-1) +> empty,
-    0 +> (-1) +> empty,
-    1 +> (-1) +> empty
+    vec2 1 0,
+    vec2 1 1,
+    vec2 0 1,
+    vec2 (-1) 1,
+    vec2 (-1) 0,
+    vec2 (-1) (-1),
+    vec2 0 (-1),
+    vec2 1 (-1)
   ]))
 
 instance squareCardinalNaiveTopology :: CardinalNaiveTopology SquarePoint where
   cardinalNeighbors = map SquarePoint (map (map Additive) ([
-    1 +> 0 +> empty,
-    0 +> 1 +> empty,
-    (-1) +> 0 +> empty,
-    0 +> (-1) +> empty
+    vec2 1 0,
+    vec2 0 1,
+    vec2 (-1) 0,
+    vec2 0 (-1)
   ]))
 
 instance isoSquareNaiveTopology :: NaiveTopology IsoSquarePoint where
   neighbors = map IsoSquarePoint (map (map Additive) ([
-    1 +> 0 +> empty,
-    1 +> 1 +> empty,
-    0 +> 1 +> empty,
-    (-1) +> 1 +> empty,
-    (-1) +> 0 +> empty,
-    (-1) +> (-1) +> empty,
-    0 +> (-1) +> empty,
-    1 +> (-1) +> empty
+    vec2 1 0,
+    vec2 1 1,
+    vec2 0 1,
+    vec2 (-1) 1,
+    vec2 (-1) 0,
+    vec2 (-1) (-1),
+    vec2 0 (-1),
+    vec2 1 (-1)
   ]))
 
 instance isoSquareCardinalNaiveTopology :: CardinalNaiveTopology IsoSquarePoint where
   cardinalNeighbors = map IsoSquarePoint (map (map Additive) ([
-    1 +> 1 +> empty,
-    (-1) +> 1 +> empty,
-    (-1) +> (-1) +> empty,
-    1 +> (-1) +> empty
+    vec2 1 1,
+    vec2 (-1) 1,
+    vec2 (-1) (-1),
+    vec2 1 (-1)
   ]))
 
 instance hexNaiveTopology :: NaiveTopology HexPoint where
   neighbors = map HexPoint (map (map Additive) ([
-    1 +> 0 +> empty,
-    0 +> 1 +> empty,
-    (-1) +> 1 +> empty,
-    (-1) +> 0 +> empty,
-    0 +> (-1) +> empty,
-    1 +> (-1) +> empty
+    vec2 1 0,
+    vec2 0 1,
+    vec2 (-1) 1,
+    vec2 (-1) 0,
+    vec2 0 (-1),
+    vec2 1 (-1)
   ]))
 
 instance hexCardinalNaiveTopology :: CardinalNaiveTopology HexPoint where
   cardinalNeighbors = map HexPoint (map (map Additive) ([
-    1 +> 0 +> empty,
-    0 +> 1 +> empty,
-    (-1) +> 1 +> empty,
-    (-1) +> 0 +> empty,
-    0 +> (-1) +> empty,
-    1 +> (-1) +> empty
+    vec2 1 0,
+    vec2 0 1,
+    vec2 (-1) 1,
+    vec2 (-1) 0,
+    vec2 0 (-1),
+    vec2 1 (-1)
   ]))
 
 newtype NowrapSquareGridContext = NowrapSquareGridContext ({
@@ -112,8 +112,14 @@ instance nowrapSquareTopology :: FiniteTopology NowrapSquareGridContext SquarePo
                                         y = unwrap (pos !! d1)
                                      in if x < 0 || x >= c.xlen || y < 0 || y >= c.ylen
                                         then Nothing
-                                        else Just (SquarePoint ((Additive x) +> (Additive y) +> empty))
+                                        else Just (SquarePoint (vec2 (Additive x) (Additive y)))
   allPositions (NowrapSquareGridContext c) = do
     x <- 0..(c.xlen - 1)
     y <- 0..(c.ylen - 1)
-    pure (SquarePoint ((Additive x) +> (Additive y) +> empty))
+    pure (SquarePoint (vec2 (Additive x) (Additive y)))
+
+mkNowrapSquareGridContext :: Int -> Int -> NowrapSquareGridContext
+mkNowrapSquareGridContext xlen ylen = NowrapSquareGridContext {
+  xlen: xlen,
+  ylen: ylen
+}
