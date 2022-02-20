@@ -26,6 +26,7 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
+    "postinstall": "spago build --deps-only",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
