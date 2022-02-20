@@ -12,5 +12,8 @@ module.exports = {
     ],
     babel: {
         presets: ['@babel/preset-react']
+    },
+    jest: {
+        configure: (jestConfig) => { jestConfig.moduleFileExtensions.push("d.ts"); return jestConfig; },
     }
 }
