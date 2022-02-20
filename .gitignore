@@ -19,6 +19,7 @@
 .env.production.local
 .purs-repl
 .psc-ide-port
+.spago
 
 npm-debug.log*
 yarn-debug.log*

@@ -6,7 +6,7 @@ module.exports = {
             options: {
                 spago: true,
                 watch: true,
-                pscIde: true,
+                pscIde: false,
             },
         },
     ],

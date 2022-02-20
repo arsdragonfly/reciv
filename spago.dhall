@@ -12,12 +12,18 @@ to generate this file without the comments in this block.
 -}
 { name = "my-project"
 , dependencies =
-  [ "console"
+  [ "bifunctors"
+  , "console"
   , "effect"
+  , "maybe"
+  , "newtype"
   , "prelude"
   , "react-basic"
   , "react-basic-dom"
   , "react-basic-hooks"
+  , "sized-vectors"
+  , "tuples"
+  , "typelevel"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
