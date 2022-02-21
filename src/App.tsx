@@ -1,8 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import { Counter } from './features/counter/Counter';
-// import { mkNowrapSquareGridContext, allPositions, nowrapSquareTopology } from 'purs/Topology.purs'
-import topology from 'purs/Topology.purs'
+import { mkNowrapSquareGridContext, allPositions, nowrapSquareTopology } from 'purs/Topology'
 import './App.css';
 import { Canvas } from '@react-three/fiber'
 import { Box } from './Box';
@@ -11,17 +10,16 @@ import { Box } from './Box';
 import { ResizeObserver } from '@juggle/resize-observer'
 
 function App() {
-  // const gridContext = mkNowrapSquareGridContext(2)(2);
-  // const positions = allPositions(nowrapSquareTopology)(gridContext);
-  // console.log(positions)
-  console.log(topology)
+  const gridContext = mkNowrapSquareGridContext(2)(2);
+  const positions = allPositions(nowrapSquareTopology)(gridContext);
+  console.log(positions)
   return (
     <div className="App">
       <header className="App-header">
         <Canvas resize={{ polyfill: ResizeObserver }}>
           <ambientLight />
           <pointLight position={[10, 10, 10]} />
-          {/* {positions.map((position, index) => <Box key={index} position={[position[0], position[1], 0]} />)} */}
+          {positions.map((position, index) => <Box key={index} position={[position[0], position[1], 0]} />)}
           {/* <Box position={[-1.2, 0, 0]} />
           <Box position={[1.2, 0, 0]} /> */}
         </Canvas>

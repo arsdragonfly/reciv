@@ -10,11 +10,19 @@ module.exports = {
                 pscIde: false,
             },
         },
+        {
+            plugin: {
+                overrideJestConfig: ({ jestConfig }) => {
+                    jestConfig.moduleNameMapper = {
+                        ...jestConfig.moduleNameMapper,
+                        "purs/(.*)": "<rootDir>/output/$1/index.js",
+                    }
+                    return jestConfig
+                }
+            }
+        }
     ],
     babel: {
         presets: ['@babel/preset-react']
-    },
-    jest: {
-        configure: (jestConfig) => { jestConfig.moduleFileExtensions.push("d.ts"); return jestConfig; },
     },
 }
