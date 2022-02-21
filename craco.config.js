@@ -1,8 +1,9 @@
+const cracoPureScriptLoader = require("craco-purescript-loader");
 
 module.exports = {
     plugins: [
         {
-            plugin: require('./craco-purescript-loader.config'),
+            plugin: cracoPureScriptLoader,
             options: {
                 spago: true,
                 watch: true,
@@ -15,5 +16,5 @@ module.exports = {
     },
     jest: {
         configure: (jestConfig) => { jestConfig.moduleFileExtensions.push("d.ts"); return jestConfig; },
-    }
+    },
 }
